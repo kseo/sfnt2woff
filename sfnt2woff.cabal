@@ -10,7 +10,8 @@ maintainer:          kwangyul.seo@gmail.com
 copyright:           BSD3
 category:            Web
 build-type:          Simple
--- extra-source-files:
+extra-source-files:  woff/*.h
+                     woff/*.c
 cabal-version:       >=1.10
 
 library
@@ -18,6 +19,8 @@ library
   exposed-modules:     Lib
   build-depends:       base >= 4.7 && < 5
   default-language:    Haskell2010
+  include-dirs:        woff
+  c-sources:           woff/woff.c
 
 executable sfnt2woff-exe
   hs-source-dirs:      app
