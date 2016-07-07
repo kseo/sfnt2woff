@@ -30,7 +30,17 @@ data ErrorCode =
   | BufferToSmall
   | BadParameter
   | IllegalOrder
-  deriving (Eq, Show)
+  deriving (Eq)
+
+instance Show ErrorCode where
+  show Ok = "ok"
+  show OutOfMemory = "memory allocation failure"
+  show Invalid = "invalid input font"
+  show CompressionFailure = "zlib compression/decompression failure"
+  show BadSignature = "incorrect WOFF file signature"
+  show BufferToSmall = "buffer too small"
+  show BadParameter = "bad parameter to WOFF function"
+  show IllegalOrder = "unknown internal error"
 
 data Warning =
     UnknownVersion
@@ -39,7 +49,15 @@ data Warning =
   | TrailingData
   | UnpaddedTable
   | RemovedDSIG
-  deriving (Eq, Show)
+  deriving (Eq)
+
+instance Show Warning where
+  show UnknownVersion = "unrecognized sfnt version"
+  show ChecksumMismatch = "checksum mismatch (corrected)"
+  show MisalignedTable = "misaligned font table"
+  show TrailingData = "extraneous input data discarded"
+  show UnpaddedTable = "final table not correctly padded"
+  show RemovedDSIG = "digital signature (DSIG) table removed"
 
 toWarnings :: CUInt -> [Warning]
 toWarnings cWarnings = 

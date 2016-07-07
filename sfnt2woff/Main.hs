@@ -32,7 +32,7 @@ main = do
   result <- encode sfnt majorVersion minorVersion
   case result of
     Left errorCode -> do
-      print errorCode -- FIXME: pretty print error code
+      print errorCode
       exitWith (ExitFailure 1)
     Right (woff, warnings) -> do
       let outfile = replaceExtension infile ".woff"
