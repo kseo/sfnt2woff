@@ -5,6 +5,8 @@ module Graphics.WOFF
   , EncodeResult
   , ErrorCode(OutOfMemory, Invalid, CompressionFailure, BadSignature, BufferToSmall, BadParameter, IllegalOrder)
   , Warning(..)
+  , setMetadata
+  , setPrivateData
   ) where
 
 import Data.ByteString (ByteString)
@@ -16,6 +18,7 @@ import Foreign
 import Foreign.C.String
 import Foreign.C.Types
 import Foreign.Marshal.Alloc
+import Foreign.Marshal.Utils
 
 #include <woff.h>
 
@@ -96,21 +99,48 @@ statusToErrorCodeAndWarnigns :: CUInt -> (ErrorCode, [Warning])
 statusToErrorCodeAndWarnigns cStatus =
   (toErrorCode $ fromIntegral (cStatus .&. 0xff), toWarnings (clearBit cStatus 0xff))
 
+wrapResult :: Ptr CUInt -> CString -> Ptr CUInt -> IO EncodeResult
+wrapResult statusPtr woffData woffLenPtr = do
+  status <- peek statusPtr
+  let (errorCode, warnings) = statusToErrorCodeAndWarnigns status
+  case errorCode of
+    Ok -> do
+      woffLen <- peek woffLenPtr
+      woff <- BS.unsafePackMallocCStringLen (woffData, fromIntegral woffLen)
+      return $ Right (woff, warnings)
+    _ -> return $ Left errorCode
+
 encode :: ByteString -> Word16 -> Word16 -> IO EncodeResult
 encode sfnt major minor =
   BS.unsafeUseAsCStringLen sfnt $ \(sfntData, sfntLen) -> (
   alloca $ \woffLenPtr -> (
   alloca $ \statusPtr -> do
     woffData <- cWoffEncode sfntData (CUInt (fromIntegral sfntLen)) (CUShort major) (CUShort minor) woffLenPtr statusPtr
-    status <- peek statusPtr
-    let (errorCode, warnings) = statusToErrorCodeAndWarnigns status
+    wrapResult statusPtr woffData woffLenPtr))
 
-    case errorCode of
-      Ok -> do
-        woffLen <- peek woffLenPtr
-        woff <- BS.unsafePackMallocCStringLen (woffData, fromIntegral woffLen)
-        return $ Right (woff, warnings)
-      _ -> return $ Left errorCode))
+setMetadata :: ByteString -> ByteString -> IO EncodeResult
+setMetadata woff meta =
+  BS.unsafeUseAsCStringLen woff $ \(woffData, woffLen) -> (
+  BS.unsafeUseAsCStringLen meta $ \(metaData, metaLen) -> (
+  allocaBytes woffLen $ \woffDataTmp -> (
+  alloca $ \woffLenPtr -> (
+  alloca $ \statusPtr -> do
+    poke woffLenPtr (CUInt (fromIntegral woffLen))
+    copyBytes woffDataTmp woffData woffLen
+    woffData <- cWoffSetMetadata woffDataTmp woffLenPtr metaData (CUInt (fromIntegral metaLen)) statusPtr
+    wrapResult statusPtr woffData woffLenPtr))))
+
+setPrivateData :: ByteString -> ByteString -> IO EncodeResult
+setPrivateData woff priv =
+  BS.unsafeUseAsCStringLen woff $ \(woffData, woffLen) -> (
+  BS.unsafeUseAsCStringLen priv $ \(privData, privLen) -> (
+  allocaBytes woffLen $ \woffDataTmp -> (
+  alloca $ \woffLenPtr -> (
+  alloca $ \statusPtr -> do
+    poke woffLenPtr (CUInt (fromIntegral woffLen))
+    copyBytes woffDataTmp woffData woffLen
+    woffData <- cWoffSetPrivateData woffDataTmp woffLenPtr privData (CUInt (fromIntegral privLen)) statusPtr
+    wrapResult statusPtr woffData woffLenPtr))))
 
 foreign import ccall unsafe "woff.h woffEncode"
   cWoffEncode :: CString
