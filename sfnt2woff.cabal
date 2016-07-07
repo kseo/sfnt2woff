@@ -8,7 +8,7 @@ license-file:        LICENSE
 author:              Kwang Yul Seo
 maintainer:          kwangyul.seo@gmail.com
 copyright:           BSD3
-category:            Web
+category:            Graphics
 build-type:          Simple
 extra-source-files:  woff/*.h
                      woff/*.c
