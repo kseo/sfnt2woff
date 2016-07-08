@@ -146,13 +146,13 @@ setMetadata :: ByteString -> ByteString -> IO EncodeResult
 setMetadata woff meta =
   BS.unsafeUseAsCStringLen woff $ \(woffData, woffLen) -> (
   BS.unsafeUseAsCStringLen meta $ \(metaData, metaLen) -> (
-  allocaBytes woffLen $ \woffDataTmp -> (
   alloca $ \woffLenPtr -> (
   alloca $ \statusPtr -> do
     poke woffLenPtr (CUInt (fromIntegral woffLen))
+    woffDataTmp <- mallocBytes woffLen
     copyBytes woffDataTmp woffData woffLen
     woffData <- cWoffSetMetadata woffDataTmp woffLenPtr metaData (CUInt (fromIntegral metaLen)) statusPtr
-    wrapResult statusPtr woffData woffLenPtr))))
+    wrapResult statusPtr woffData woffLenPtr)))
 
 -- | Add the given private data block to the WOFF font, replacing any exisiting
 -- private block. The block will NOT be zlib-compressed.
@@ -162,13 +162,13 @@ setPrivateData :: ByteString -> ByteString -> IO EncodeResult
 setPrivateData woff priv =
   BS.unsafeUseAsCStringLen woff $ \(woffData, woffLen) -> (
   BS.unsafeUseAsCStringLen priv $ \(privData, privLen) -> (
-  allocaBytes woffLen $ \woffDataTmp -> (
   alloca $ \woffLenPtr -> (
   alloca $ \statusPtr -> do
     poke woffLenPtr (CUInt (fromIntegral woffLen))
+    woffDataTmp <- mallocBytes woffLen
     copyBytes woffDataTmp woffData woffLen
     woffData <- cWoffSetPrivateData woffDataTmp woffLenPtr privData (CUInt (fromIntegral privLen)) statusPtr
-    wrapResult statusPtr woffData woffLenPtr))))
+    wrapResult statusPtr woffData woffLenPtr)))
 
 foreign import ccall unsafe "woff.h woffEncode"
   cWoffEncode :: CString
