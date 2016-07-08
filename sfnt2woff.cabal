@@ -34,7 +34,9 @@ executable sfnt2woff
                      , bytestring >= 0.10.0 && < 0.11.0
                      , filepath >= 1.4.0 && < 1.5.0
                      , optparse-applicative >= 0.12.0 && < 0.13.0
+                     , parsec >= 3.1.10 && < 3.2
                      , sfnt2woff
+  other-modules:       VersionParser
   default-language:    Haskell2010
 
 test-suite sfnt2woff-test
