@@ -1,10 +1,29 @@
 {-# LANGUAGE CPP, ForeignFunctionInterface #-}
 
-module Graphics.WOFF 
-  ( encode
+-----------------------------------------------------------------------------
+---- |
+---- Module      :  Graphics.WOFF
+---- Copyright   :  (c) Kwang Yul Seo 2016
+---- License     :  BSD-style (see the file LICENSE)
+---- 
+---- Maintainer  :  kwangyul.seo@gmail.com
+---- Stability   :  experimental
+---- Portability :  portable
+----
+---- Utilities for primitive marshaling
+----
+-------------------------------------------------------------------------------
+module Graphics.WOFF
+  (
+  -- ** Encoding woff
+  --
+    encode
   , EncodeResult
   , ErrorCode(OutOfMemory, Invalid, CompressionFailure, BadSignature, BufferToSmall, BadParameter, IllegalOrder)
   , Warning(..)
+  -- ** Setting metadata and private data
+  -- | (argument order: woff, data)
+  --
   , setMetadata
   , setPrivateData
   ) where
@@ -110,6 +129,7 @@ wrapResult statusPtr woffData woffLenPtr = do
       return $ Right (woff, warnings)
     _ -> return $ Left errorCode
 
+-- | Encode the OpenType/TrueType fonts into WOFF format
 encode :: ByteString -> Word16 -> Word16 -> IO EncodeResult
 encode sfnt major minor =
   BS.unsafeUseAsCStringLen sfnt $ \(sfntData, sfntLen) -> (
@@ -118,6 +138,10 @@ encode sfnt major minor =
     woffData <- cWoffEncode sfntData (CUInt (fromIntegral sfntLen)) (CUShort major) (CUShort minor) woffLenPtr statusPtr
     wrapResult statusPtr woffData woffLenPtr))
 
+-- | Add the given metadata block to the WOFF font, replacing any exisiting
+-- metadata block. The block will be zlib-compressed.
+-- Metadata is required to be valid XML (use of UTF-8 is recommended),
+-- though this function does not currently check this.
 setMetadata :: ByteString -> ByteString -> IO EncodeResult
 setMetadata woff meta =
   BS.unsafeUseAsCStringLen woff $ \(woffData, woffLen) -> (
@@ -130,6 +154,10 @@ setMetadata woff meta =
     woffData <- cWoffSetMetadata woffDataTmp woffLenPtr metaData (CUInt (fromIntegral metaLen)) statusPtr
     wrapResult statusPtr woffData woffLenPtr))))
 
+-- | Add the given private data block to the WOFF font, replacing any exisiting
+-- private block. The block will NOT be zlib-compressed.
+-- Private data may be any arbitrary block of bytes; it may be externally
+-- compressed by the client if desired.
 setPrivateData :: ByteString -> ByteString -> IO EncodeResult
 setPrivateData woff priv =
   BS.unsafeUseAsCStringLen woff $ \(woffData, woffLen) -> (
