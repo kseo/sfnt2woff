@@ -2,6 +2,7 @@ module VersionParser
   ( parseVersion
   ) where
 
+import Control.Applicative ((<$>))
 import Data.Char (digitToInt)
 import Data.List (foldl')
 import Data.Word
