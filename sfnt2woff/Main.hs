@@ -1,6 +1,5 @@
 module Main where
 
-import Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
 import Data.Maybe (fromMaybe)
 import Data.Word
@@ -19,6 +18,7 @@ data CommandOption = CommandOption
   , otfFile :: String
   } deriving (Show)
 
+opts :: ParserInfo CommandOption
 opts = info (helper <*> cmdOpt)
   ( fullDesc
   <> progDesc "package OpenType <otffile> as WOFF, creating <otffile>.woff")
@@ -58,14 +58,14 @@ main = do
   whenJust (metadataFile cmd) (\f -> do
     meta <- BS.readFile f
     woff <- readIORef woffRef
-    result <- setMetadata woff meta
-    checkResult result woffRef)
+    result' <- setMetadata woff meta
+    checkResult result' woffRef)
 
   whenJust (privateDataFile cmd) (\f -> do
     priv <- BS.readFile f
     woff <- readIORef woffRef
-    result <- setPrivateData woff priv
-    checkResult result woffRef)
+    result' <- setPrivateData woff priv
+    checkResult result' woffRef)
 
   let outfile = replaceExtension infile ".woff"
   woff <- readIORef woffRef
@@ -77,6 +77,6 @@ main = do
         Left errorCode -> do
           print errorCode
           exitWith (ExitFailure 1)
-        Right (woff, warnings) -> do
+        Right (woff, _) -> do
           writeIORef woffRef woff
 

@@ -14,11 +14,18 @@ extra-source-files:  woff/*.h
                      woff/*.c
 cabal-version:       >=1.10
 
+flag pedantic
+  Description: Enable -Werror
+  Default:     False
+
 library
   hs-source-dirs:      src
   exposed-modules:     Graphics.WOFF
   build-depends:       base >= 4.7 && < 5
                      , bytestring >= 0.10.0 && < 0.11.0
+  ghc-options:         -Wall
+  if flag(pedantic)
+     ghc-options:      -Werror
   default-language:    Haskell2010
   build-tools:         hsc2hs
   include-dirs:        woff
@@ -36,6 +43,9 @@ executable sfnt2woff
                      , parsec >= 3.1.10 && < 3.2
                      , sfnt2woff
   other-modules:       VersionParser
+  ghc-options:         -Wall
+  if flag(pedantic)
+     ghc-options:      -Werror
   default-language:    Haskell2010
 
 test-suite sfnt2woff-test

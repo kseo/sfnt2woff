@@ -20,7 +20,7 @@ decimal = foldl' (\a i -> a * 10 + digitToInt i) 0 <$> many1 digit
 versionParser :: Parser (Word16, Word16)
 versionParser = do
   major <- decimal
-  char '.'
+  _ <- char '.'
   minor <- decimal
   return (fromIntegral major, fromIntegral minor)
 
