@@ -101,6 +101,7 @@ toWarnings cWarnings =
     flagToWarning #{const eWOFF_warn_trailing_data} = TrailingData
     flagToWarning #{const eWOFF_warn_unpadded_table} = UnpaddedTable
     flagToWarning #{const eWOFF_warn_removed_DSIG} = RemovedDSIG
+    flagToWarning _ = error "unreachable code"
 
 toErrorCode :: CUInt -> ErrorCode
 toErrorCode #{const eWOFF_ok} = Ok
@@ -111,6 +112,7 @@ toErrorCode #{const eWOFF_bad_signature} = BadSignature
 toErrorCode #{const eWOFF_buffer_too_small} = BufferToSmall
 toErrorCode #{const eWOFF_bad_parameter} = BadParameter
 toErrorCode #{const eWOFF_illegal_order} = IllegalOrder
+toErrorCode _ = error "unreachable code"
 
 statusToErrorCodeAndWarnigns :: CUInt -> (ErrorCode, [Warning])
 statusToErrorCodeAndWarnigns cStatus =
