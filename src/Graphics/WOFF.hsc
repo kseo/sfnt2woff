@@ -148,8 +148,8 @@ setMetadata woff meta =
     poke woffLenPtr (CUInt (fromIntegral woffLen))
     woffDataTmp <- mallocBytes woffLen
     copyBytes woffDataTmp woffData woffLen
-    woffData <- cWoffSetMetadata woffDataTmp woffLenPtr metaData (CUInt (fromIntegral metaLen)) statusPtr
-    wrapResult statusPtr woffData woffLenPtr)))
+    woffData' <- cWoffSetMetadata woffDataTmp woffLenPtr metaData (CUInt (fromIntegral metaLen)) statusPtr
+    wrapResult statusPtr woffData' woffLenPtr)))
 
 -- | Add the given private data block to the WOFF font, replacing any exisiting
 -- private block. The block will NOT be zlib-compressed.
@@ -164,8 +164,8 @@ setPrivateData woff priv =
     poke woffLenPtr (CUInt (fromIntegral woffLen))
     woffDataTmp <- mallocBytes woffLen
     copyBytes woffDataTmp woffData woffLen
-    woffData <- cWoffSetPrivateData woffDataTmp woffLenPtr privData (CUInt (fromIntegral privLen)) statusPtr
-    wrapResult statusPtr woffData woffLenPtr)))
+    woffData' <- cWoffSetPrivateData woffDataTmp woffLenPtr privData (CUInt (fromIntegral privLen)) statusPtr
+    wrapResult statusPtr woffData' woffLenPtr)))
 
 foreign import ccall unsafe "woff.h woffEncode"
   cWoffEncode :: CString
