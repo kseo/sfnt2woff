@@ -94,6 +94,7 @@ toWarnings cWarnings =
       , #{const eWOFF_warn_removed_DSIG}
       ]
 
+    flagToWarning :: CInt -> Warning
     flagToWarning #{const eWOFF_warn_unknown_version} = UnknownVersion
     flagToWarning #{const eWOFF_warn_checksum_mismatch} = ChecksumMismatch
     flagToWarning #{const eWOFF_warn_misaligned_table} = MisalignedTable
