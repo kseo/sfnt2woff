@@ -29,15 +29,12 @@ module Graphics.WOFF
   ) where
 
 import Data.ByteString (ByteString)
-import qualified Data.ByteString as BS
 import qualified Data.ByteString.Unsafe as BS
 import Data.Bits
 import Data.Word
 import Foreign
 import Foreign.C.String
 import Foreign.C.Types
-import Foreign.Marshal.Alloc
-import Foreign.Marshal.Utils
 
 #include <woff.h>
 
