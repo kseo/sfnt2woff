@@ -1,8 +1,12 @@
+{-# LANGUAGE CPP #-}
+
 module VersionParser
   ( parseVersion
   ) where
 
+#if __GLASGOW_HASKELL__ < 710
 import Control.Applicative ((<$>))
+#endif
 import Data.Char (digitToInt)
 import Data.List (foldl')
 import Data.Word
