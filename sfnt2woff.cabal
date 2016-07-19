@@ -10,6 +10,7 @@ maintainer:          kwangyul.seo@gmail.com
 copyright:           BSD3
 category:            Graphics
 build-type:          Simple
+tested-with:         GHC == 7.8.4, GHC == 7.10.1, GHC == 8.0.1
 extra-source-files:  woff/*.h
                      woff/*.c
 cabal-version:       >=1.10
